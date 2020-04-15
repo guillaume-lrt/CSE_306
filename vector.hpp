@@ -57,8 +57,11 @@ Vector operator*(const double t, const Vector &a){
     return Vector(t * a[0], t * a[1], t * a[2]);
 }
 
-void print(Vector a)
-{
+Vector operator/(const Vector &a, const double t){
+    return Vector(a[0]/t, a[1]/t, a[2]/t);
+}
+
+void print(Vector a){
     std::cout << "[" << a[0] << ", " << a[1] << ", " << a[2] << "]" << std::endl;
 }
 

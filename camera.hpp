@@ -18,6 +18,6 @@ class Camera{
         Vector pixel(int x, int y){
             return Vector(this->center[0] + x + 0.5 - this->width / 2, 
                         this->center[1] + y + 0.5 - this->height / 2, 
-                        this->center[2] - this->width / (2*tan(this->fov/2)));
+                        -this->center[2] + this->width / (2*tan(this->fov/2)));
         }
 };

@@ -12,23 +12,6 @@
 
 #include "vector"
 
-void save_image(const int w, const int h, int channels_num){
-    unsigned char data[w * h * channels_num];
-
-    int index = 0;
-    for (int j = h - 1; j >= 0; --j)
-    {
-        for (int i = 0; i < w; ++i)
-        {
-            data[index++] = (unsigned char)(255.0 * i / w);
-            data[index++] = (unsigned char)(255.0 * j / h);
-            data[index++] = (unsigned char)(255.0 * 0.2);
-        }
-    }
-
-    stbi_write_jpg("jpg_test_.jpg", w, h, channels_num, data, w * channels_num);
-}
-
 int main()
 {
     Sphere s = Sphere(Vector(0,0,0), 10);
@@ -39,14 +22,31 @@ int main()
     std::vector<Sphere> scene = {s_green, s_blue, s_magenta, s_red};
     Vector Q = Vector(0,0,55);          // center of camera
     double alpha = 60;                  // field of view
-    int W = 1080;
-    int H = 720;
+    int W = 120*4;
+    int H = 120*4;
     int channels_num = 3;
     Camera cam = Camera(Q,alpha,W,H);
-    Ray r = Ray(Q,Vector(0,0,-1));
-    auto inter = s.intersection(r);
-    // save_image(128, 128, 3);
-    
+    // Ray r = Ray(Q,Vector(0,0,-1));
+    // auto inter = s.intersection(r);
 
+    unsigned char data[W * H * channels_num];
+
+    int index = 0;
+    for (int i = 0; i < H; i++){
+        for (int j = 0; j < W; j++){
+            int color = 1;
+            auto direction = normalization(cam.pixel(j,H-i-1));
+            Ray r = Ray(Q,direction);
+            // auto inter = s.in;
+            auto is_inter = s.intersection(r);
+            if (is_inter[0] == inf) color = 0;
+            data[index++] = (unsigned char)(color * 255.0);
+            data[index++] = (unsigned char)(color * 255.0);
+            data[index++] = (unsigned char)(color * 255.0);
+        }
+    }
+
+    stbi_write_jpg("image.jpg", W, H, channels_num, data, W * channels_num);
+    std::cout << "return";
     return 0;
 }
