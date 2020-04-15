@@ -22,8 +22,8 @@ int main()
     std::vector<Sphere> scene = {s_green, s_blue, s_magenta, s_red};
     Vector Q = Vector(0,0,55);          // center of camera
     double alpha = 60;                  // field of view
-    int W = 120*4;
-    int H = 120*4;
+    int W = 520;
+    int H = 520;
     int channels_num = 3;
     Camera cam = Camera(Q,alpha,W,H);
     // Ray r = Ray(Q,Vector(0,0,-1));
@@ -34,12 +34,12 @@ int main()
     int index = 0;
     for (int i = 0; i < H; i++){
         for (int j = 0; j < W; j++){
-            int color = 1;
+            int color = 0;
             auto direction = normalization(cam.pixel(j,H-i-1));
             Ray r = Ray(Q,direction);
             // auto inter = s.in;
-            auto is_inter = s.intersection(r);
-            if (is_inter[0] == inf) color = 0;
+            auto inter = s.intersect(r);
+            if (inter.is_intersection) color = 1;
             data[index++] = (unsigned char)(color * 255.0);
             data[index++] = (unsigned char)(color * 255.0);
             data[index++] = (unsigned char)(color * 255.0);
