@@ -26,8 +26,8 @@ int main()
     int H = 520;
     int channels_num = 3;
     Camera cam = Camera(Q,alpha,W,H);
-    // Ray r = Ray(Q,Vector(0,0,-1));
-    // auto inter = s.intersection(r);
+    
+    // print(normalization(Vector(-1,-2,-5)));
 
     unsigned char data[W * H * channels_num];
 
@@ -35,9 +35,8 @@ int main()
     for (int i = 0; i < H; i++){
         for (int j = 0; j < W; j++){
             int color = 0;
-            auto direction = normalization(cam.pixel(j,H-i-1));
+            auto direction = cam.pixel(j,H-i-1)-Q;
             Ray r = Ray(Q,direction);
-            // auto inter = s.in;
             auto inter = s.intersect(r);
             if (inter.is_intersection) color = 1;
             data[index++] = (unsigned char)(color * 255.0);

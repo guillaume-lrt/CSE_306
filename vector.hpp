@@ -49,7 +49,7 @@ Vector cross(const Vector &a, const Vector &b){
 }
 
 Vector normalization(const Vector &a){
-    auto nrm = norm(a);
+    double nrm = norm(a);
     return Vector(a[0] / nrm, a[1] / nrm, a[2] / nrm);
 }
 
