@@ -20,7 +20,7 @@ class Camera{
             height = H;
         }
         Vector pixel(int x, int y){
-            double f = abs(this->width / (2*tan(this->fov/2)));
+            double f = this->width / (2*tan(dtr*this->fov/2));
             // std::cout << f << std::endl;
             return Vector(this->center[0] + x + 0.5 - this->width / 2, 
                         this->center[1] + y + 0.5 - this->height / 2, 

@@ -4,6 +4,7 @@
 #include "ray.hpp"
 #include "scene.hpp"
 #include "camera.hpp"
+#include "light.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
@@ -26,6 +27,7 @@ int main()
     int H = 520;
     int channels_num = 3;
     Camera cam = Camera(Q,alpha,W,H);
+    Light L = Light(Vector(-10,20,40),pow(10,10));
     
     // print(normalization(Vector(-1,-2,-5)));
 
@@ -38,7 +40,16 @@ int main()
             auto direction = cam.pixel(j,H-i-1)-Q;
             Ray r = Ray(Q,direction);
             auto inter = s.intersect(r);
-            if (inter.is_intersection) color = 1;
+            if (inter.is_intersection){ 
+                color = 1;
+                Vector N = inter.normal;
+                Vector P = inter.position;
+                Vector S = L.origin;
+                double distance_light = norm(S - P);
+                Vector omega = (S-P)/distance_light;
+                Ray r_light = Ray(S,omega);
+                double visibility = s.intersect(r_light).is_intersection ? 0 : 1;
+            }
             data[index++] = (unsigned char)(color * 255.0);
             data[index++] = (unsigned char)(color * 255.0);
             data[index++] = (unsigned char)(color * 255.0);
