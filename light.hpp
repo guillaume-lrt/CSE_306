@@ -10,9 +10,4 @@ public:
         origin = S;
         intensity = I;
     }
-
-    Vector reflection(Vector N,double d,Vector albedo, double Visibility,Vector omega){
-        Vector res = this->intensity/(4*PI*pow(d,2)) * albedo/PI * Visibility * dot(N,omega);
-        return res;
-    }
 };
