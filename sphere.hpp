@@ -29,11 +29,14 @@ class Sphere {
         Vector center;
         double radius;
         Vector albedo;
+        int index;
+        bool mirror = false;
         Intersection intersect(const Ray &r);
 
-        explicit Sphere(Vector C, double R,Vector A =Vector(0,0,0)){
+        explicit Sphere(Vector C, double R,Vector A =Vector(0,0,0),std::string surface = "diffuse"){
             center = C;
             radius = R;
             albedo = A;
+            if (surface == "mirror") mirror = true;
         }
 };
