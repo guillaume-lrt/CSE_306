@@ -31,12 +31,16 @@ class Sphere {
         Vector albedo;
         int index;
         bool mirror = false;
+        bool transparent = false;
+        double refract_index;
         Intersection intersect(const Ray &r);
 
-        explicit Sphere(Vector C, double R,Vector A =Vector(0,0,0),std::string surface = "diffuse"){
+        explicit Sphere(Vector C, double R,Vector A =Vector(0,0,0),std::string surface = "diffuse",double n = 0){
             center = C;
             radius = R;
             albedo = A;
+            refract_index = n;
             if (surface == "mirror") mirror = true;
+            if (surface == "transparent") transparent = true;
         }
 };

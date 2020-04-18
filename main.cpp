@@ -17,10 +17,9 @@
 #include "vector"
 #include "math.h"
 
-int main()
-{
+int main(){
     Sphere s_left = Sphere(Vector(-21,0,0), 10, Vector(1,1,1),"mirror");
-    Sphere s_middle = Sphere(Vector(0, 0, 0), 10, Vector(1, 1, 1));
+    Sphere s_middle = Sphere(Vector(0, 0, 0), 10, Vector(1, 1, 1),"transparent",1.5);
     Sphere s_right = Sphere(Vector(21, 0, 0), 10, Vector(1, 1, 1), "mirror");
     Sphere s_green = Sphere(Vector(0, 0, -1000), 940, Vector(0, 1, 0));
     Sphere s_blue = Sphere(Vector(0, -1000, 0), 990, Vector(0, 0, 1));
@@ -35,7 +34,7 @@ int main()
     int H = 720;
     Camera cam = Camera(Q,alpha,W,H);
     Light L = Light(Vector(-10,20,40),pow(10,5));
-    int max_path_length = 10;
+    int max_path_length = 5;
 
     Scene scene = Scene({s_middle, s_left, s_right, s_green, s_blue, s_magenta, s_red, s_cyan, s_yellow}, L);
 
@@ -49,7 +48,7 @@ int main()
             Ray r = Ray(Q,direction);
   
             color = scene.intensity_reflexion(r,max_path_length);
-            // std::cout << scene.light.intensity<<std::endl;
+            
             double power = 1. / 2.2;
             data[(i * W + j) * 3 + 0] = std::min(255., std::max(0., pow(color[0], power) * 255));
             data[(i * W + j) * 3 + 1] = std::min(255., std::max(0., pow(color[1], power) * 255));
