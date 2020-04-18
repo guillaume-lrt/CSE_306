@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <vector>
 
 class Vector{
     private:
@@ -76,6 +77,15 @@ Vector operator/(const double t, const Vector &a){
 
 void print(Vector a){
     std::cout << "[" << a[0] << ", " << a[1] << ", " << a[2] << "]" << std::endl;
+}
+
+Vector average(std::vector<Vector> colors){
+    size_t n = colors.size();
+    Vector res = Vector(0,0,0);
+    for(int i = 0; i < n; i++){
+        res = res + colors[i];
+    }
+    return res/n;
 }
 
 // #endif

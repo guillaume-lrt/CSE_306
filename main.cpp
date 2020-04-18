@@ -20,7 +20,8 @@
 int main(){
     Sphere s_left = Sphere(Vector(-21,0,0), 10, Vector(1,1,1),"mirror");
     Sphere s_middle = Sphere(Vector(0, 0, 0), 10, Vector(1, 1, 1),"transparent",1.5);
-    Sphere s_right = Sphere(Vector(21, 0, 0), 10, Vector(1, 1, 1), "mirror");
+    // Sphere s_right_1 = Sphere(Vector(21, 0, 0), 9, Vector(1, 1, 1), "transparent",1.5);
+    Sphere s_right_2 = Sphere(Vector(21, 0, 0), 10, Vector(1, 1, 1), "transparent",1.5);
     Sphere s_green = Sphere(Vector(0, 0, -1000), 940, Vector(0, 1, 0));
     Sphere s_blue = Sphere(Vector(0, -1000, 0), 990, Vector(0, 0, 1));
     Sphere s_magenta = Sphere(Vector(0, 0, 1000), 940, Vector(1,0,1));
@@ -30,24 +31,32 @@ int main(){
 
     Vector Q = Vector(0,0,55);          // center of camera
     double alpha = 60;                  // field of view
-    int W = 720;
-    int H = 720;
+    int W = 520;
+    int H = 520;
     Camera cam = Camera(Q,alpha,W,H);
     Light L = Light(Vector(-10,20,40),pow(10,5));
     int max_path_length = 5;
 
-    Scene scene = Scene({s_middle, s_left, s_right, s_green, s_blue, s_magenta, s_red, s_cyan, s_yellow}, L);
+    Scene scene = Scene({s_middle, s_left, s_right_2, s_green, s_blue, s_magenta, s_red, s_cyan, s_yellow}, L);
 
     unsigned char data[W * H * 3];
 
-    int index = 0;
+    // int index = 0;
     for (int i = 0; i < H; i++){
         for (int j = 0; j < W; j++){
             Vector color = Vector(0,0,0);
             auto direction = cam.pixel(j,H-i-1)-Q;
             Ray r = Ray(Q,direction);
-  
-            color = scene.intensity_reflexion(r,max_path_length);
+
+            // std::vector<Vector> ave_color;
+            // for (int i = 0; i < 10; i++){
+            //     color = scene.getColor(r,max_path_length);
+            //     ave_color.push_back(color);
+            // }
+
+            // color = average(ave_color);
+
+            color = scene.getColor(r,max_path_length);
             
             double power = 1. / 2.2;
             data[(i * W + j) * 3 + 0] = std::min(255., std::max(0., pow(color[0], power) * 255));
