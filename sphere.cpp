@@ -11,7 +11,7 @@ Intersection Sphere::intersect(const Ray& r){
     Vector OC = C-O;
     auto t_temp = dot(u, OC);
     Vector projection = t_temp*u - OC;         // projection center of the sphere onto the ray
-    if (norm(projection) > R){                  // ray can't intercept the sphere
+    if (norm(projection) > abs(R)){                  // ray can't intercept the sphere
         return Intersection();
     }
     auto delta = pow(t_temp, 2) - ((pow(norm(OC), 2)) - pow(R, 2));

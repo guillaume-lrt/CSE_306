@@ -20,7 +20,7 @@
 int main(){
     Sphere s_left = Sphere(Vector(-21,0,0), 10, Vector(1,1,1),"mirror");
     Sphere s_middle = Sphere(Vector(0, 0, 0), 10, Vector(1, 1, 1),"transparent",1.5);
-    // Sphere s_right_1 = Sphere(Vector(21, 0, 0), 9, Vector(1, 1, 1), "transparent",1.5);
+    Sphere s_right_1 = Sphere(Vector(21, 0, 0), -9, Vector(1, 1, 1), "transparent",1.5);
     Sphere s_right_2 = Sphere(Vector(21, 0, 0), 10, Vector(1, 1, 1), "transparent",1.5);
     Sphere s_green = Sphere(Vector(0, 0, -1000), 940, Vector(0, 1, 0));
     Sphere s_blue = Sphere(Vector(0, -1000, 0), 990, Vector(0, 0, 1));
@@ -35,13 +35,12 @@ int main(){
     int H = 520;
     Camera cam = Camera(Q,alpha,W,H);
     Light L = Light(Vector(-10,20,40),pow(10,5));
-    int max_path_length = 5;
+    int max_path_length = 10;
 
-    Scene scene = Scene({s_middle, s_left, s_right_2, s_green, s_blue, s_magenta, s_red, s_cyan, s_yellow}, L);
+    Scene scene = Scene({s_middle, s_left, s_right_1, s_right_2, s_green, s_blue, s_magenta, s_red, s_cyan, s_yellow}, L);
 
     unsigned char data[W * H * 3];
 
-    // int index = 0;
     for (int i = 0; i < H; i++){
         for (int j = 0; j < W; j++){
             Vector color = Vector(0,0,0);

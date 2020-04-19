@@ -64,6 +64,10 @@ Vector Scene::getColor(const Ray& r, int ray_depth, std::vector<double> index){
             //     N = -N;
             // }
 
+            // if (inter.index == 2){
+            //     std::cout << spheres[2].radius << std::endl;
+            // }
+
             auto temp0 = n1 / n2;
             auto temp = dot(dir, N);
 
@@ -72,7 +76,7 @@ Vector Scene::getColor(const Ray& r, int ray_depth, std::vector<double> index){
             auto T= 1-R;
             auto u = ((double) rand() / (RAND_MAX));
 
-            if (u > R){                 // return refract ray                
+            if (10 > R){                 // return refract ray                
                 Vector r_tan = temp0 * (dir - temp * N);
                 Vector r_nor = -N * sqrt(1 - pow(temp0, 2) * (1 - pow(temp, 2)));
 
