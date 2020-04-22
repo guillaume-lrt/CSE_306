@@ -36,6 +36,7 @@ int main(){
     Camera cam = Camera(Q,alpha,W,H);
     Light L = Light(Vector(-10,20,40),pow(10,5));
     int max_path_length = 5;
+    int K = 1000;
 
     Scene scene = Scene({s_middle, s_left, s_right_2, s_green, s_blue, s_magenta, s_red, s_cyan, s_yellow}, L);
 
@@ -54,13 +55,13 @@ int main(){
             if (scene.spheres[scene.intersection(r).index].transparent){
                 // std::vector<Vector> ave_color;
                 Vector ave_color = Vector(0,0,0);
-                for (int i = 0; i < 10; i++){
+                for (int i = 0; i < K; i++){
                     color = scene.getColor(r,max_path_length);
                     // ave_color.push_back(color);
                     ave_color = ave_color + color;
                 }
                 // color = average(ave_color);
-                color = ave_color/10;
+                color = ave_color/K;
             }            
             else color = scene.getColor(r,max_path_length);
             
