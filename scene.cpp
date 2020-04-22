@@ -3,6 +3,7 @@
 // #include "light.hpp"
 #include "math.h"
 #include <random>
+#include <time.h>
 
 Intersection Scene::intersection(const Ray& r){
     int n = spheres.size();
@@ -20,14 +21,14 @@ Intersection Scene::intersection(const Ray& r){
     return res;
 }
 
-Vector Scene::getColor(const Ray& r, int ray_depth, std::vector<double> index){
+Vector Scene::getColor(const Ray& r, int ray_depth){ //,std::vector<double> index){
     if (ray_depth < 0) {
         return Vector(0.,0.,0.);
         }
     Intersection inter = this->intersection(r);
     Vector N = inter.normal;
     Vector P = inter.position + N*0.01;
-    Sphere s = spheres[inter.index];
+    Sphere s = this->spheres[inter.index];
     Vector dir = r.direction;
 
     if (inter.is_intersection){
@@ -35,21 +36,24 @@ Vector Scene::getColor(const Ray& r, int ray_depth, std::vector<double> index){
             Ray reflect = Ray(P,dir - 2*dot(dir,N)*N);
             return getColor(reflect,ray_depth-1);
         }
-        else if (s.transparent){
+        else if (s.transparent)
+        {
             double n1;
             double n2;
-            if (dot(dir, N) > 0){
+            if (dot(dir, N) > 0)
+            {
                 N = -N;
-                P = inter.position + N*0.01;
-                n1 = index[0];
-                n2 = index[1];
-                index.erase(index.begin());             // leaving the sphere => remove its refraction index from index
+                P = inter.position + N * 0.01;
+                n1 = 1.5; //index[0];
+                n2 = 1; //index[1];
+                // index.erase(index.begin()); // leaving the sphere => remove its refraction index from index
                 // if (n1 != n2) std::swap(n1,n2);
             }
-            else{
-                index.insert(index.begin(), s.refract_index);       // enter the sphere => add its refraction index in the first position
-                n1 = index[1];
-                n2 = index[0];
+            else
+            {
+                // index.insert(index.begin(), s.refract_index); // enter the sphere => add its refraction index in the first position
+                n1 = 1; //index[1];
+                n2 = 1.5; //index[0];
             }
 
             // std::cout << n1 << ", " << n2 << std::endl;
@@ -71,18 +75,19 @@ Vector Scene::getColor(const Ray& r, int ray_depth, std::vector<double> index){
             auto temp0 = n1 / n2;
             auto temp = dot(dir, N);
 
-            auto k0 = pow(n1-n2,2)/pow(n1+n2,2);
-            auto R = k0 + (1-k0)*pow(1-abs(temp),5);
-            auto T= 1-R;
-            auto u = ((double) rand() / (RAND_MAX));
+            auto k0 = pow(n1 - n2, 2) / pow(n1 + n2, 2);
+            auto R = k0 + (1 - k0) * pow(1 - abs(temp), 5);
+            auto T = 1 - R;
+            auto u = ((double)rand() / (RAND_MAX));
 
-            if (10 > R){                 // return refract ray                
+            if (u > R)
+            { // return refract ray
                 Vector r_tan = temp0 * (dir - temp * N);
                 Vector r_nor = -N * sqrt(1 - pow(temp0, 2) * (1 - pow(temp, 2)));
 
                 Ray refract = Ray(P - N * 0.02, r_tan + r_nor);
 
-                return getColor(refract, ray_depth - 1, index);
+                return getColor(refract, ray_depth - 1);
             }
             Ray reflect = Ray(P, dir - 2 * temp * N);
             return getColor(reflect, ray_depth - 1);
