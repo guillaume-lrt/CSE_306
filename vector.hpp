@@ -28,6 +28,11 @@ class Vector{
             double &operator[](int i) { return coords[i]; }
 };
 
+bool operator==(const Vector &a, const Vector &b){
+    bool temp = ((a[0] == b[0]) && (a[1] == b[1]) && (a[2] == b[2])) ? true : false;
+    return temp;
+}
+
 Vector operator+(const Vector &a, const Vector &b){
     return Vector(a[0] + b[0], a[1] + b[1], a[2] + b[2]);
 }
@@ -79,13 +84,13 @@ void print(Vector a){
     std::cout << "[" << a[0] << ", " << a[1] << ", " << a[2] << "]" << std::endl;
 }
 
-Vector average(std::vector<Vector> colors){
-    size_t n = colors.size();
-    Vector res = Vector(0,0,0);
-    for(int i = 0; i < n; i++){
-        res = res + colors[i];
-    }
-    return res/n;
-}
+// Vector average(std::vector<Vector> colors){
+//     size_t n = colors.size();
+//     Vector res = Vector(0,0,0);
+//     for(int i = 0; i < n; i++){
+//         res = res + colors[i];
+//     }
+//     return res/n;
+// }
 
 // #endif

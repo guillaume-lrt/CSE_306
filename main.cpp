@@ -17,10 +17,10 @@
 #include "vector"
 #include "math.h"
 
-int main(){
+int main(int argc, char **argv){
     Sphere s_left = Sphere(Vector(-21,0,0), 10, Vector(1,1,1),"mirror");
     Sphere s_middle = Sphere(Vector(0, 0, 0), 10, Vector(1, 1, 1),"transparent",1.5);
-    // Sphere s_right_1 = Sphere(Vector(21, 0, 0), -9, Vector(1, 1, 1), "transparent",1.5);
+    // Sphere s_right_1 = Sphere(Vector(21, 0, 0), 9, Vector(1, 1, 1), "transparent",1.5,true);
     Sphere s_right_2 = Sphere(Vector(21, 0, 0), 10, Vector(1, 1, 1), "transparent",1.5);
     Sphere s_green = Sphere(Vector(0, 0, -1000), 940, Vector(0, 1, 0));
     Sphere s_blue = Sphere(Vector(0, -1000, 0), 990, Vector(0, 0, 1));
@@ -36,7 +36,7 @@ int main(){
     Camera cam = Camera(Q,alpha,W,H);
     Light L = Light(Vector(-10,20,40),pow(10,5));
     int max_path_length = 5;
-    int K = 1000;
+    int K = 100;
 
     Scene scene = Scene({s_middle, s_left, s_right_2, s_green, s_blue, s_magenta, s_red, s_cyan, s_yellow}, L);
 
@@ -52,15 +52,15 @@ int main(){
             // color = scene.getColor(r, max_path_length);
             // std::cout << *index.size() << std::endl;
 
-            if (scene.spheres[scene.intersection(r).index].transparent){
+            auto s = scene.spheres[scene.intersection(r).index];
+
+            if (s.transparent || s.mirror){
                 // std::vector<Vector> ave_color;
                 Vector ave_color = Vector(0,0,0);
                 for (int i = 0; i < K; i++){
                     color = scene.getColor(r,max_path_length);
-                    // ave_color.push_back(color);
                     ave_color = ave_color + color;
                 }
-                // color = average(ave_color);
                 color = ave_color/K;
             }            
             else color = scene.getColor(r,max_path_length);
@@ -69,7 +69,7 @@ int main(){
             data[(i * W + j) * 3 + 0] = std::min(255., std::max(0., pow(color[0], power) * 255));
             data[(i * W + j) * 3 + 1] = std::min(255., std::max(0., pow(color[1], power) * 255));
             data[(i * W + j) * 3 + 2] = std::min(255., std::max(0., pow(color[2], power) * 255));
-        }
+            }
     }
 
     stbi_write_jpg("image.jpg", W, H, 3, data, 0);
