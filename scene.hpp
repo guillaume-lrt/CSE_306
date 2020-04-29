@@ -7,6 +7,7 @@ class Scene{
     public:
         std::vector<Sphere> spheres;
         Intersection intersection(const Ray& r);
+        Vector random_cos(const Vector &N);
         Vector getColor(const Ray &r, int ray_depth);//std::vector<double> index = {1});
         Light light = Light(Vector(0,0,0),0);
         explicit Scene(std::vector<Sphere> S, Light L){

@@ -1,6 +1,4 @@
 #pragma once
-// #ifndef vector_hpp
-// #define vector_hpp
 
 #include <iostream>
 #include <math.h>
@@ -22,6 +20,13 @@ class Vector{
                 coords[0] += b[0];
                 coords[1] += b[1];
                 coords[2] += b[2];
+                return *this;
+            }
+            Vector &operator*=(const double t)
+            {
+                coords[0] *= t;
+                coords[1] *= t;
+                coords[2] *= t;
                 return *this;
             }
             const double &operator[](int i) const { return coords[i]; }
@@ -70,6 +75,10 @@ Vector operator*(const double t, const Vector &a){
 
 Vector operator*(const Vector &a, const double t){
     return Vector(t * a[0], t * a[1], t * a[2]);
+}
+
+Vector operator*(const Vector &a, const Vector &b){
+    return Vector(a[0] * b[0], a[1] * b[1], a[2] * b[2]);
 }
 
 Vector operator/(const Vector &a, const double t){

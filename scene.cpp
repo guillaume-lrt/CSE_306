@@ -3,7 +3,8 @@
 // #include "light.hpp"
 #include "math.h"
 #include <random>
-#include <time.h>
+// #include <time.h>
+
 static std::default_random_engine engine(10); // random seed = 10
 static std::uniform_real_distribution<double> uniform(0, 1);
 
@@ -23,8 +24,35 @@ Intersection Scene::intersection(const Ray& r){
     return res;
 }
 
+Vector Scene::random_cos(const Vector &N){
+    double r1 = uniform(engine);
+    double r2 = uniform(engine);
+    double x = cos(2*PI*r1)*sqrt(1-r2);
+    double y = sin(2*PI*r1)*sqrt(1-r2);
+    double z = sqrt(r2);
+    double p = z/PI;
+    int smallest_index = 0;
+    double mini = abs(N[0]);
+    for (int i = 1; i < 3; i++){
+        if (abs(N[i]) < mini){
+            mini = abs(N[i]);
+            smallest_index = i;
+        }
+    }
+    Vector T1 = Vector(N[0],N[1],N[2]);
+    // print(N);
+    T1[smallest_index] = 0;
+    T1[(smallest_index + 1) % 3] *= -1;
+    std::swap(T1[(smallest_index + 1) % 3], T1[(smallest_index + 2) % 3]);
+    // std::cout << "[" << T1[0] << ", " << T1[1] << ", " << T1[2] << "]\n" << std::endl;
+    T1 = normalization(T1);
+    Vector T2 = cross(N,T1);
+    Vector V = x*T1+y*T2+z*N;
+    return V;
+}
+
 Vector Scene::getColor(const Ray& r, int ray_depth){ //,std::vector<double> index){
-    if (ray_depth < 0) {
+    if (ray_depth < 0) {        // terminate the recursion
         return Vector(0.,0.,0.);
         }
     Intersection inter = this->intersection(r);
@@ -69,30 +97,25 @@ Vector Scene::getColor(const Ray& r, int ray_depth){ //,std::vector<double> inde
                 n2 = 1.5; //index[0];
             }
 
-            auto temp0 = n1 / n2;
-            auto temp = dot(dir, N);
+            auto n1n2 = n1 / n2;
+            auto dot_dir = dot(dir, N);
+            double radicand = 1 - pow(n1n2, 2) * (1 - pow(dot_dir, 2));
 
             auto k0 = pow(n1 - n2, 2) / pow(n1 + n2, 2);
             auto R = k0 + (1 - k0) * pow(1 - abs(dot(N,dir)), 5);
         
             auto T = 1 - R;
-            // auto u = ((double)rand() / (RAND_MAX));
             auto u = uniform(engine);
 
-            if (u > R) { // return refract ray
-                Vector r_tan = temp0 * (dir - temp * N);
-                double temp1 = 1 - pow(temp0, 2) * (1 - pow(temp, 2));
-                if (temp1 < 0){             // total internal reflection
-                    Ray reflect = Ray(P, dir - 2 * temp * N);
-                    return getColor(reflect, ray_depth - 1);
-                }
-                Vector r_nor = -N * sqrt(temp1);
+            if (u>R && radicand >= 0){ // refract ray
+                Vector r_tan = n1n2 * (dir - dot_dir * N);
+                Vector r_nor = -N * sqrt(radicand);
 
                 Ray refract = Ray(P - N * 0.02, r_tan + r_nor);
 
                 return getColor(refract, ray_depth - 1);
             }
-            Ray reflect = Ray(P, dir - 2 * temp * N);
+            Ray reflect = Ray(P, dir - 2 * dot_dir * N);
             return getColor(reflect, ray_depth - 1);
         }
         else{
@@ -105,11 +128,11 @@ Vector Scene::getColor(const Ray& r, int ray_depth){ //,std::vector<double> inde
             Ray r_light = Ray(S, -omega);
             int visibility = this->intersection(r_light).distance > d ? 1 : 0;
 
-            return I / (4 * PI * pow(d, 2)) * albedo / PI * visibility * std::max(dot(N, omega), 0.);
+            Vector Lo = I / (4 * PI * pow(d, 2)) * albedo / PI * visibility * std::max(dot(N, omega), 0.);
+            Ray random_ray = Ray(P,random_cos(N));
+            Lo += albedo * getColor(random_ray,ray_depth-1);
+            return Lo;
         }
     }
-    // std::cout << " " << std::endl;
-    // print(r.origin);
-    // print(r.direction);
     return Vector(0.,0.,0.);
 }

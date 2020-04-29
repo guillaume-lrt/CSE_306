@@ -7,7 +7,9 @@
 #include "scene.cpp"
 #include "camera.hpp"
 #include "light.hpp"
-
+// #include "Monte_carlo.cpp"
+#include <chrono>
+using namespace std::chrono;
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
@@ -18,6 +20,8 @@
 #include "math.h"
 
 int main(int argc, char **argv){
+    auto start = high_resolution_clock::now();
+
     Sphere s_left = Sphere(Vector(-21,0,0), 10, Vector(1,1,1),"mirror");
     Sphere s_middle = Sphere(Vector(0, 0, 0), 10, Vector(1, 1, 1),"transparent",1.5);
     // Sphere s_right_1 = Sphere(Vector(21, 0, 0), 9, Vector(1, 1, 1), "transparent",1.5,true);
@@ -42,7 +46,9 @@ int main(int argc, char **argv){
 
     unsigned char data[W * H * 3];
 
+    // #pragma omp parallel for
     for (int i = 0; i < H; i++){
+        // #pragma omp parallel for
         for (int j = 0; j < W; j++){
             Vector color = Vector(0,0,0);
             auto direction = cam.pixel(j,H-i-1)-Q;
@@ -73,6 +79,9 @@ int main(int argc, char **argv){
     }
 
     stbi_write_jpg("image.jpg", W, H, 3, data, 0);
-    std::cout << "return";
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    duration = duration / 1000000;
+    std::cout << "Time taken: " << duration.count() << " seconds" << std::endl;
     return 0;
 }
