@@ -46,7 +46,7 @@ int main(int argc, char **argv){
 
     unsigned char data[W * H * 3];
 
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for (int i = 0; i < H; i++){
         // #pragma omp parallel for
         for (int j = 0; j < W; j++){
@@ -58,18 +58,12 @@ int main(int argc, char **argv){
             // color = scene.getColor(r, max_path_length);
             // std::cout << *index.size() << std::endl;
 
-            auto s = scene.spheres[scene.intersection(r).index];
-
-            if (s.transparent || s.mirror){
-                // std::vector<Vector> ave_color;
-                Vector ave_color = Vector(0,0,0);
-                for (int i = 0; i < K; i++){
-                    color = scene.getColor(r,max_path_length);
-                    ave_color = ave_color + color;
-                }
-                color = ave_color/K;
-            }            
-            else color = scene.getColor(r,max_path_length);
+            Vector ave_color = Vector(0,0,0);
+            for (int i = 0; i < K; i++){
+                color = scene.getColor(r,max_path_length);
+                ave_color = ave_color + color;
+            }
+            color = ave_color/K;
             
             double power = 1. / 2.2;
             data[(i * W + j) * 3 + 0] = std::min(255., std::max(0., pow(color[0], power) * 255));

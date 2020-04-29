@@ -1,44 +1,25 @@
-#include <iostream>
-#include <random>
-#define PI 3.14159265
+#include "Monte_carlo.hpp"
 
-static std::default_random_engine engine(10); // random seed = 10
-static std::uniform_real_distribution<double> uniform(0, 1);
-
-
-void boxMuller(double stdev, double &x, double &y){
-    double r1 = uniform(engine);
-    double r2 = uniform(engine);
-    x = sqrt(-2 * log(r1)) * cos(2 * PI * r2) * stdev;
-    y = sqrt(-2 * log(r1)) * sin(2 * PI * r2) * stdev;
-}
-
-double sqr(double x){
-    return pow(x,2);
-}
-
-double cosinus(double x){
-    return cos(x);
-}
-
-double Gaussian_pdf(double x, double y, double z, double stddev){
-    return pow(1/(stddev*sqrt(2*PI)),3)*exp(-(x*x + y*y + z*z)/(2*pow(stddev,2)));
-}
-
-template <typename Func>
-double monte_carlo_integration(Func f, Func p, std::vector<double> boundaries,int N = 100){
+template <typename Func, typename Func2>
+double monte_carlo_integration(Func f, Func2 p, std::vector<double> boundaries,int N){
     double a = boundaries[0];
     double b = boundaries[1];
-    std::uniform_real_distribution<double> uniform_int(a, b);
     double res = 0;
+    double stddev = 1;
     for (int i = 0; i < N; i++){
-        double x1 = uniform_int(engine);
+        auto [x,y] = boxMuller(stddev);
+        auto [z,w] = boxMuller(stddev);
+        if ((x - b) * (x - a) <= 0 && (y - b) * (y - a) <= 0 && (z - b) * (z - a) <= 0){
+            res += (f(x,y,z) / p(x, y, z, stddev));
+        }
     }
-    return f(3);
+    res /= N;
+    return res;
 }
 
 int main(){
-    auto t = monte_carlo_integration(cosinus);
-    std::cout << t;
+    std::vector<double> bound = {-PI/2,PI/2};
+    auto t = monte_carlo_integration(cosinus,Gaussian_pdf,bound);   // exercise
+    std::cout << t << std::endl;
     return 0;
 }

@@ -10,18 +10,19 @@ Intersection Sphere::intersect(const Ray& r){
     double R = this->radius;
     Vector OC = C-O;
     auto t_temp = dot(u, OC);
-    Vector projection = t_temp*u - OC;         // projection center of the sphere onto the ray
-    if (norm(projection) > abs(R)){                  // ray can't intercept the sphere
-        return Intersection();
-    }
-    auto delta = pow(t_temp, 2) - ((pow(norm(OC), 2)) - pow(R, 2));
+    // Vector projection = t_temp*u - OC;         // projection center of the sphere onto the ray
+    // if (norm(projection) > abs(R)){                  // ray can't intercept the sphere
+    //     return Intersection();
+    // }
+    auto delta = pow(t_temp, 2) - (norm_square(OC) - pow(R, 2));
     if (delta < 0){         // if not solutions
         is_inter = false;
         return Intersection();
     }
     else{
-        auto t1 = t_temp - sqrt(delta);
-        auto t2 = t_temp + sqrt(delta);
+        delta = sqrt(delta);
+        auto t1 = t_temp - delta;
+        auto t2 = t_temp + delta;
         if (t2 < 0){
             is_inter = false;
             return Intersection();

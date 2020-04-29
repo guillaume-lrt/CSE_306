@@ -5,7 +5,8 @@
 #include <random>
 // #include <time.h>
 
-static std::default_random_engine engine(10); // random seed = 10
+// static std::default_random_engine engine[8];
+static std::default_random_engine engine(10);
 static std::uniform_real_distribution<double> uniform(0, 1);
 
 Intersection Scene::intersection(const Ray& r){
@@ -106,6 +107,8 @@ Vector Scene::getColor(const Ray& r, int ray_depth){ //,std::vector<double> inde
         
             auto T = 1 - R;
             auto u = uniform(engine);
+            // uniform(engine[int omp_get_thread_num(void)]);
+
 
             if (u>R && radicand >= 0){ // refract ray
                 Vector r_tan = n1n2 * (dir - dot_dir * N);
