@@ -1,7 +1,8 @@
 #pragma once
 
-#include <iostream>
 #include <math.h>
+
+#include <iostream>
 #include <vector>
 
 class Vector{
@@ -69,6 +70,7 @@ Vector cross(const Vector &a, const Vector &b){
 }
 
 Vector normalization(const Vector &a){
+    if (norm_square(a) == 1.) return a;
     double nrm = norm(a);
     return Vector(a[0] / nrm, a[1] / nrm, a[2] / nrm);
 }

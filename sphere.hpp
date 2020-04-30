@@ -1,10 +1,10 @@
 #pragma once
+
 #include "vector.hpp"
 #include "ray.hpp"
-#include <limits>
 // #include "sphere.cpp"
 
-double inf = std::numeric_limits<double>::infinity();
+#include "utils.hpp"
 
 
 class Intersection {

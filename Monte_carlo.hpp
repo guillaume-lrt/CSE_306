@@ -1,7 +1,9 @@
+#pragma once
 #include <iostream>
 #include <random>
 #include <tuple>
-#define PI 3.14159265
+
+#include "utils.hpp"
 
 static std::default_random_engine engine(10); // random seed = 10
 static std::uniform_real_distribution<double> uniform(0, 1);

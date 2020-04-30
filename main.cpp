@@ -1,4 +1,10 @@
-#include <iostream>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb/stb_image.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb/stb_image_write.h"
+
+#include <chrono>
+
 #include "vector.hpp"
 #include "sphere.hpp"
 #include "sphere.cpp"
@@ -7,23 +13,16 @@
 #include "scene.cpp"
 #include "camera.hpp"
 #include "light.hpp"
-// #include "Monte_carlo.cpp"
-#include <chrono>
+#include "Monte_carlo.hpp"
+
 using namespace std::chrono;
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb/stb_image_write.h"
-
-#include "vector"
-#include "math.h"
 
 int main(int argc, char **argv){
     auto start = high_resolution_clock::now();
 
     Sphere s_left = Sphere(Vector(-21,0,0), 10, Vector(1,1,1),"mirror");
-    Sphere s_middle = Sphere(Vector(0, 0, 0), 10, Vector(1, 1, 1),"transparent",1.5);
+    Sphere s_middle = Sphere(Vector(0, 0, 0), 10, Vector(1, 1, 1));
     // Sphere s_right_1 = Sphere(Vector(21, 0, 0), 9, Vector(1, 1, 1), "transparent",1.5,true);
     Sphere s_right_2 = Sphere(Vector(21, 0, 0), 10, Vector(1, 1, 1), "transparent",1.5);
     Sphere s_green = Sphere(Vector(0, 0, -1000), 940, Vector(0, 1, 0));
@@ -35,8 +34,8 @@ int main(int argc, char **argv){
 
     Vector Q = Vector(0,0,55);          // center of camera
     double alpha = 60;                  // field of view
-    int W = 520;
-    int H = 520;
+    const int W = 520;
+    const int H = 520;
     Camera cam = Camera(Q,alpha,W,H);
     Light L = Light(Vector(-10,20,40),pow(10,5));
     int max_path_length = 5;
@@ -46,12 +45,13 @@ int main(int argc, char **argv){
 
     unsigned char data[W * H * 3];
 
-    #pragma omp parallel for
+#pragma omp parallel for schedule(static,1)
     for (int i = 0; i < H; i++){
         // #pragma omp parallel for
         for (int j = 0; j < W; j++){
             Vector color = Vector(0,0,0);
-            auto direction = cam.pixel(j,H-i-1)-Q;
+            bool muller = false;         // if using muller box for antialiasing
+            auto direction = cam.pixel(j,H-i-1,muller)-Q;
             Ray r = Ray(Q,direction);
 
             // std::vector<double> index = {1};

@@ -1,13 +1,18 @@
+#pragma once
 #include "scene.hpp"
+
+#include "math.h"
+#include <omp.h>
+
+#include <random>
+
 #include "sphere.hpp"
 // #include "light.hpp"
-#include "math.h"
-#include <random>
-// #include <time.h>
 
-// static std::default_random_engine engine[8];
-static std::default_random_engine engine(10);
-static std::uniform_real_distribution<double> uniform(0, 1);
+
+static std::default_random_engine engine_scene[8];
+// static std::default_random_engine engine_scene(10);
+static std::uniform_real_distribution<double> uniform_scene(0, 1);
 
 Intersection Scene::intersection(const Ray& r){
     int n = spheres.size();
@@ -26,8 +31,13 @@ Intersection Scene::intersection(const Ray& r){
 }
 
 Vector Scene::random_cos(const Vector &N){
-    double r1 = uniform(engine);
-    double r2 = uniform(engine);
+    // double r1 = uniform_scene(engine_scene);
+    // double r2 = uniform_scene(engine_scene);
+    double r1 = uniform_scene(engine_scene[omp_get_thread_num()]);
+    double r2 = uniform_scene(engine_scene[omp_get_thread_num()]);
+    // double r1 = 0;
+    // double r2 = 0;
+    // std::cout << "er";
     double x = cos(2*PI*r1)*sqrt(1-r2);
     double y = sin(2*PI*r1)*sqrt(1-r2);
     double z = sqrt(r2);
@@ -106,8 +116,8 @@ Vector Scene::getColor(const Ray& r, int ray_depth){ //,std::vector<double> inde
             auto R = k0 + (1 - k0) * pow(1 - abs(dot(N,dir)), 5);
         
             auto T = 1 - R;
-            auto u = uniform(engine);
-            // uniform(engine[int omp_get_thread_num(void)]);
+            // auto u = uniform_scene(engine_scene);
+            auto u = uniform_scene(engine_scene[omp_get_thread_num()]);
 
 
             if (u>R && radicand >= 0){ // refract ray

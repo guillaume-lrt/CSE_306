@@ -1,9 +1,8 @@
 #pragma once
-#include "vector.hpp"
 
-#define PI 3.14159265
-#define rtd double(180 / PI) // radiantodegree: radian * rtd = degree
-#define dtr double(PI / 180)
+#include "vector.hpp"
+#include "utils.hpp"
+#include "Monte_carlo.hpp"
 
 class Camera{
     public:
@@ -19,11 +18,16 @@ class Camera{
             width = W;
             height = H;
         }
-        Vector pixel(int x, int y){
+        Vector pixel(int x, int y,bool muller = false){
             double f = this->width / (2*tan(dtr*this->fov/2));
-            // std::cout << f << std::endl;
-            return Vector(this->center[0] + x + 0.5 - this->width / 2, 
-                        this->center[1] + y + 0.5 - this->height / 2, 
+            if (muller){
+                auto [x_shift,y_shift] = boxMuller(1);
+                return Vector(this->center[0] + x + 0.5 - this->width / 2 + x_shift, 
+                        this->center[1] + y + 0.5 - this->height / 2 + y_shift, 
                         this->center[2] - f);
+            }
+            return Vector(this->center[0] + x + 0.5 - this->width / 2,
+                          this->center[1] + y + 0.5 - this->height / 2,
+                          this->center[2] - f);
         }
 };

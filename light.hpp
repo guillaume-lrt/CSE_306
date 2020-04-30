@@ -1,6 +1,7 @@
 #pragma once
+
 #include "vector.hpp"
-#define PI 3.14159265
+#include "utils.hpp"
 
 class Light{
 public:
