@@ -34,11 +34,12 @@ class Sphere {
         int index;
         bool mirror = false;
         bool transparent = false;
+        bool light = false;
         double refract_index;
         Intersection intersect(const Ray &r);
         bool hollow;
 
-        explicit Sphere(Vector C, double R,Vector A =Vector(0,0,0),std::string surface = "diffuse",double n = 0, bool h = false){
+        explicit Sphere(Vector C = Vector(0,0,0), double R = 0,Vector A =Vector(0,0,0),std::string surface = "diffuse",double n = 0, bool h = false){
             center = C;
             radius = R;
             albedo = A;

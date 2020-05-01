@@ -37,7 +37,7 @@ int main(int argc, char **argv){
     const int W = 520;
     const int H = 520;
     Camera cam = Camera(Q,alpha,W,H);
-    Light L = Light(Vector(-10,20,40),pow(10,5));
+    Light L = Light(Sphere(Vector(-10,20,40),2),pow(10,5));
     int max_path_length = 5;
     int K = 100;
 

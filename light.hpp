@@ -6,9 +6,14 @@
 class Light{
 public:
     Vector origin;
+    Sphere sphere;
     double intensity;
-    explicit Light(Vector S, double I){
-        origin = S;
+    double radius;
+    explicit Light(Sphere S = Sphere(), double I = pow(10,5)){ //Vector C, double I, double R){
+        origin = S.center;
         intensity = I;
+        radius = S.radius;
+        sphere = S;
+        sphere.light = true;
     }
 };
