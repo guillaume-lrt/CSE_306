@@ -50,16 +50,17 @@ int main(int argc, char **argv){
         // #pragma omp parallel for
         for (int j = 0; j < W; j++){
             Vector color = Vector(0,0,0);
-            bool muller = false;         // if using muller box for antialiasing
-            auto direction = cam.pixel(j,H-i-1,muller)-Q;
-            Ray r = Ray(Q,direction);
+            bool muller = true;         // if using muller box for antialiasing
 
             // std::vector<double> index = {1};
             // color = scene.getColor(r, max_path_length);
             // std::cout << *index.size() << std::endl;
 
             Vector ave_color = Vector(0,0,0);
-            for (int i = 0; i < K; i++){
+            for (int u = 0; u < K; u++){
+                auto direction = cam.pixel(j, H - i - 1, muller) - Q;
+                Ray r = Ray(Q, direction);
+
                 color = scene.getColor(r,max_path_length);
                 ave_color = ave_color + color;
             }
