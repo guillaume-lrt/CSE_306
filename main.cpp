@@ -5,15 +5,9 @@
 
 #include <chrono>
 
-#include "vector.hpp"
-#include "sphere.hpp"
-#include "sphere.cpp"
-#include "ray.hpp"
 #include "scene.hpp"
 #include "scene.cpp"
-#include "camera.hpp"
-#include "light.hpp"
-#include "Monte_carlo.hpp"
+// #include "simple_obj_file_reader.hpp"
 
 using namespace std::chrono;
 
@@ -37,7 +31,8 @@ int main(int argc, char **argv){
     const int W = 520;
     const int H = 520;
     Camera cam = Camera(Q,alpha,W,H);
-    Light L = Light(Sphere(Vector(-10,20,40),2),pow(10,5));
+    // Light L = Light(Sphere(Vector(-10,20,40),2),pow(10,5));
+    Light L = Light(Vector(-10,20,40),pow(10,5));
     int max_path_length = 5;
     int K = 100;
 

@@ -1,4 +1,4 @@
-#pragma once
+// #pragma once
 #include "scene.hpp"
 
 #include "math.h"
@@ -6,8 +6,7 @@
 
 #include <random>
 
-#include "sphere.hpp"
-// #include "light.hpp"
+// #include "object.hpp"
 
 
 static std::default_random_engine engine_scene[8];
@@ -72,9 +71,9 @@ Vector Scene::getColor(const Ray& r, int ray_depth){ //,std::vector<double> inde
     Vector dir = r.direction;
 
     if (inter.is_intersection){
-        if(s.light){
-            return Vector(1,1,1) * this->light.intensity / (4*PI*PI*pow(s.radius,2));
-        }
+        // if(s.light){
+        //     return Vector(1,1,1) * this->light.intensity / (4*PI*PI*pow(s.radius,2));
+        // }
         if (s.mirror){        
             Ray reflect = Ray(P,dir - 2*dot(dir,N)*N);
             return getColor(reflect,ray_depth-1);
@@ -136,29 +135,29 @@ Vector Scene::getColor(const Ray& r, int ray_depth){ //,std::vector<double> inde
         else{       // diffuse
             double I = this->light.intensity;
             Vector C = this->light.origin;
-            double R = this->light.radius;
+            // double R = this->light.radius;
             double d = norm(C - P);     // distance between light center and intersection point
 
-            Vector D = (P-C)/d;
-            Vector V = random_cos(D);
-            Vector xprime = R*V + C;            // point on the light sphere
+            // Vector D = (P-C)/d;
+            // Vector V = random_cos(D);
+            // Vector xprime = R*V + C;            // point on the light sphere
 
-            Vector Nprime = (xprime-C)/(R); //norm(xprime-C));
-            Vector omega_i = (xprime-P)/(norm(xprime-P));
+            // Vector Nprime = (xprime-C)/(R); //norm(xprime-C));
+            // Vector omega_i = (xprime-P)/(norm(xprime-P));
             
             Vector albedo = s.albedo;
         
-            // Vector omega = (C - P) / d;
-            // Ray r_light = Ray(C, -omega);
-            Ray r_light = Ray(P,omega_i);
-            // int visibility = this->intersection(r_light).distance > d ? 1 : 0;
-            int visibility = this->intersection(r_light).distance > (d-R) ? 1 : 0;
+            Vector omega = (C - P) / d;
+            Ray r_light = Ray(C, -omega);
+            // Ray r_light = Ray(P,omega_i);
+            int visibility = this->intersection(r_light).distance > d ? 1 : 0;
+            // int visibility = this->intersection(r_light).distance > (d-R) ? 1 : 0;
             // int visibility = this->spheres[this->intersection(r_light).index].light ? 1 : 0;
 
-            double pdf = dot(Nprime, D)/(PI*pow(R,2));
+            // double pdf = dot(Nprime, D)/(PI*pow(R,2));
 
-            // Vector Lo = I / (4 * PI * pow(d, 2)) * albedo / PI * visibility * std::max(dot(N, omega), 0.);
-            Vector Lo = I / (4 * pow(PI,2) * pow(R, 2)) * albedo / PI * visibility * std::max(dot(N, omega_i), 0.) * std::max(dot(Nprime,-omega_i),0.)/(norm_square(xprime-P)*pdf);
+            Vector Lo = I / (4 * PI * pow(d, 2)) * albedo / PI * visibility * std::max(dot(N, omega), 0.);
+            // Vector Lo = I / (4 * pow(PI,2) * pow(R, 2)) * albedo / PI * visibility * std::max(dot(N, omega_i), 0.) * std::max(dot(Nprime,-omega_i),0.)/(norm_square(xprime-P)*pdf);
             Ray random_ray = Ray(P,random_cos(N));
             Lo += albedo * getColor(random_ray,ray_depth-1);
             return Lo;

@@ -3,8 +3,8 @@
 #include <vector>
 #include <iostream>
 
-#include "sphere.hpp"
-#include "light.hpp"
+#include "object.hpp"
+#include "object.cpp"
 
 class Scene{
     public:
@@ -16,7 +16,7 @@ class Scene{
         Vector getColor(const Ray &r, int ray_depth);//std::vector<double> index = {1});
         explicit Scene(std::vector<Sphere> S, Light L){
             spheres = S;
-            spheres.push_back(L.sphere);
+            // spheres.push_back(L.sphere);
             light = L;
             for (int i = 0; i < spheres.size(); i++){
                 spheres[i].index = i;
