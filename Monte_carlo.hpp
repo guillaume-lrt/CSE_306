@@ -29,4 +29,4 @@ double Gaussian_pdf(double x, double y, double z, double stddev){
 }
 
 template <typename Func, typename Func2>
-double monte_carlo_integration(Func f, Func2 p, std::vector<double> boundaries,int N = 10000);
+double monte_carlo_integration(Func &f, Func2 &p, std::vector<double> boundaries,int N = 10000);

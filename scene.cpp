@@ -13,21 +13,20 @@ static std::default_random_engine engine_scene[8];
 // static std::default_random_engine engine_scene(10);
 static std::uniform_real_distribution<double> uniform_scene(0, 1);
 
-void Scene::add_sphere(Sphere S){
-    this->spheres.push_back(S);
-    S.index = this->spheres.size();
+void Scene::add_object(Geometry* O){
+    this->objects.push_back(O);
+    O->index = this->objects.size();
 }
 
 Intersection Scene::intersection(const Ray& r){
-    int n = spheres.size();
     double min_d = inf;
     Intersection res;
-    for (int i = 0;i<n;i++){
-        auto temp = spheres[i].intersect(r);
-        if (temp.is_intersection){
-            if(temp.distance < min_d){
-                min_d = temp.distance;
-                res = temp;
+    for (auto &obj : objects){
+        Intersection inter = obj->intersect(r);
+        if (inter.is_intersection){
+            if(inter.distance < min_d){
+                min_d = inter.distance;
+                res = inter;
             }
         }
     }
@@ -41,7 +40,7 @@ Vector Scene::random_cos(const Vector &N){
     double x = cos(2*PI*r1)*sqrt(1-r2);
     double y = sin(2*PI*r1)*sqrt(1-r2);
     double z = sqrt(r2);
-    double p = z/PI;
+    // double p = z/PI;
     int smallest_index = 0;
     double mini = abs(N[0]);
     for (int i = 1; i < 3; i++){
@@ -67,19 +66,18 @@ Vector Scene::getColor(const Ray& r, int ray_depth){ //,std::vector<double> inde
     Intersection inter = this->intersection(r);
     Vector N = inter.normal;
     Vector P = inter.position + N*0.01;
-    Sphere s = this->spheres[inter.index];
+    Geometry* o = this->objects[inter.index];
     Vector dir = r.direction;
 
     if (inter.is_intersection){
         // if(s.light){
         //     return Vector(1,1,1) * this->light.intensity / (4*PI*PI*pow(s.radius,2));
         // }
-        if (s.mirror){        
+        if (o->mirror){        
             Ray reflect = Ray(P,dir - 2*dot(dir,N)*N);
             return getColor(reflect,ray_depth-1);
         }
-        else if (s.transparent)
-        {
+        else if (o->transparent){
             double n1;
             double n2;
 
@@ -96,7 +94,7 @@ Vector Scene::getColor(const Ray& r, int ray_depth){ //,std::vector<double> inde
                 N = -N;
                 P = inter.position + N * 0.01;
                 
-                n1 = s.refract_index; //index[0];
+                n1 = o->refract_index; //index[0];
                 n2 = 1; //index[1];
                 
                 // index.erase(index.begin()); // leaving the sphere => remove its refraction index from index
@@ -106,7 +104,7 @@ Vector Scene::getColor(const Ray& r, int ray_depth){ //,std::vector<double> inde
             {
                 // index.insert(index.begin(), s.refract_index); // enter the sphere => add its refraction index in the first position
                 n1 = 1; //index[1];
-                n2 = s.refract_index; //index[0];
+                n2 = o->refract_index; //index[0];
             }
 
             auto n1n2 = n1 / n2;
@@ -116,7 +114,7 @@ Vector Scene::getColor(const Ray& r, int ray_depth){ //,std::vector<double> inde
             auto k0 = pow(n1 - n2, 2) / pow(n1 + n2, 2);
             auto R = k0 + (1 - k0) * pow(1 - abs(dot(N,dir)), 5);
         
-            auto T = 1 - R;
+            // auto T = 1 - R;
             // auto u = uniform_scene(engine_scene);
             auto u = uniform_scene(engine_scene[omp_get_thread_num()]);
 
@@ -145,7 +143,7 @@ Vector Scene::getColor(const Ray& r, int ray_depth){ //,std::vector<double> inde
             // Vector Nprime = (xprime-C)/(R); //norm(xprime-C));
             // Vector omega_i = (xprime-P)/(norm(xprime-P));
             
-            Vector albedo = s.albedo;
+            Vector albedo = o->albedo;
         
             Vector omega = (C - P) / d;
             Ray r_light = Ray(C, -omega);

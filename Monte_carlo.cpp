@@ -1,7 +1,7 @@
 #include "Monte_carlo.hpp"
 
 template <typename Func, typename Func2>
-double monte_carlo_integration(Func f, Func2 p, std::vector<double> boundaries,int N){
+double monte_carlo_integration(Func &f, Func2 &p, std::vector<double> boundaries,int N){
     double a = boundaries[0];
     double b = boundaries[1];
     double res = 0;

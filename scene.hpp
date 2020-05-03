@@ -8,18 +8,18 @@
 
 class Scene{
     public:
-        std::vector<Sphere> spheres;
+        std::vector<Geometry*> objects;
         Light light;
-        void add_sphere(Sphere S);
+        void add_object(Geometry* O);
         Intersection intersection(const Ray& r);
         Vector random_cos(const Vector &N);
         Vector getColor(const Ray &r, int ray_depth);//std::vector<double> index = {1});
-        explicit Scene(std::vector<Sphere> S, Light L){
-            spheres = S;
+        explicit Scene(std::vector<Geometry*> O, Light L){
+            objects = O;
             // spheres.push_back(L.sphere);
             light = L;
-            for (int i = 0; i < spheres.size(); i++){
-                spheres[i].index = i;
+            for (size_t i = 0; i < objects.size(); i++){
+                objects[i]->index = i;
             }
         }
 };

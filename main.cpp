@@ -15,16 +15,20 @@ using namespace std::chrono;
 int main(int argc, char **argv){
     auto start = high_resolution_clock::now();
 
-    Sphere s_left = Sphere(Vector(-21,0,0), 10, Vector(1,1,1),"mirror");
-    Sphere s_middle = Sphere(Vector(0, 0, 0), 10, Vector(1, 1, 1));
     // Sphere s_right_1 = Sphere(Vector(21, 0, 0), 9, Vector(1, 1, 1), "transparent",1.5,true);
-    Sphere s_right_2 = Sphere(Vector(21, 0, 0), 10, Vector(1, 1, 1), "transparent",1.5);
-    Sphere s_green = Sphere(Vector(0, 0, -1000), 940, Vector(0, 1, 0));
-    Sphere s_blue = Sphere(Vector(0, -1000, 0), 990, Vector(0, 0, 1));
-    Sphere s_magenta = Sphere(Vector(0, 0, 1000), 940, Vector(1,0,1));
-    Sphere s_red = Sphere(Vector(0, 1000, 0), 940,Vector(1, 0, 0));
-    Sphere s_cyan = Sphere(Vector(-1000, 0, 0), 940, Vector(0, 1, 1));
-    Sphere s_yellow = Sphere(Vector(1000, 0, 0), 940, Vector(1, 1, 0));
+    Geometry* s_left = new Sphere(Vector(-21,0,0), 10, Vector(1,1,1),"mirror");
+    Geometry* s_middle = new Sphere(Vector(0, 0, 0), 10, Vector(1, 1, 1));
+    Geometry* s_right_2 = new Sphere(Vector(21, 0, 0), 10, Vector(1, 1, 1), "transparent",1.5);
+    Geometry* s_green = new Sphere(Vector(0, 0, -1000), 940, Vector(0, 1, 0));
+    Geometry* s_blue = new Sphere(Vector(0, -1000, 0), 990, Vector(0, 0, 1));
+    Geometry* s_magenta = new Sphere(Vector(0, 0, 1000), 940, Vector(1,0,1));
+    Geometry* s_red = new Sphere(Vector(0, 1000, 0), 940,Vector(1, 0, 0));
+    Geometry* s_cyan = new Sphere(Vector(-1000, 0, 0), 940, Vector(0, 1, 1));
+    Geometry* s_yellow = new Sphere(Vector(1000, 0, 0), 940, Vector(1, 1, 0));
+
+    // Geometry* cat = new TriangleMesh();
+    TriangleMesh* cat = new TriangleMesh();
+    cat->readOBJ("cat_model/cat.obj");
 
     Vector Q = Vector(0,0,55);          // center of camera
     double alpha = 60;                  // field of view
@@ -34,13 +38,14 @@ int main(int argc, char **argv){
     // Light L = Light(Sphere(Vector(-10,20,40),2),pow(10,5));
     Light L = Light(Vector(-10,20,40),pow(10,5));
     int max_path_length = 5;
-    int K = 100;
+    int K = 36;
 
     Scene scene = Scene({s_middle, s_left, s_right_2, s_green, s_blue, s_magenta, s_red, s_cyan, s_yellow}, L);
+    // Scene scene = Scene({(Geometry*)cat},L);
 
-    unsigned char data[W * H * 3];
+    unsigned char image[W * H * 3];
 
-#pragma omp parallel for schedule(static,1)
+    #pragma omp parallel for schedule(static,1)
     for (int i = 0; i < H; i++){
         // #pragma omp parallel for
         for (int j = 0; j < W; j++){
@@ -62,13 +67,13 @@ int main(int argc, char **argv){
             color = ave_color/K;
             
             double power = 1. / 2.2;
-            data[(i * W + j) * 3 + 0] = std::min(255., std::max(0., pow(color[0], power) * 255));
-            data[(i * W + j) * 3 + 1] = std::min(255., std::max(0., pow(color[1], power) * 255));
-            data[(i * W + j) * 3 + 2] = std::min(255., std::max(0., pow(color[2], power) * 255));
+            image[(i * W + j) * 3 + 0] = std::min(255., std::max(0., pow(color[0], power) * 255));
+            image[(i * W + j) * 3 + 1] = std::min(255., std::max(0., pow(color[1], power) * 255));
+            image[(i * W + j) * 3 + 2] = std::min(255., std::max(0., pow(color[2], power) * 255));
             }
     }
 
-    stbi_write_jpg("image.jpg", W, H, 3, data, 0);
+    stbi_write_jpg("image.jpg", W, H, 3, image, 0);
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
     duration = duration / 1000000;
