@@ -113,7 +113,9 @@ class TriangleIndices{
 class TriangleMesh : public Geometry{
     public:
         ~TriangleMesh() {}
-        TriangleMesh(){};
+        TriangleMesh(const char *obj){
+            readOBJ(obj);
+        };
 
         void readOBJ(const char *obj)    {
 

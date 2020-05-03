@@ -21,8 +21,10 @@ void Scene::add_object(Geometry* O){
 Intersection Scene::intersection(const Ray& r){
     double min_d = inf;
     Intersection res;
-    for (auto &obj : objects){
-        Intersection inter = obj->intersect(r);
+    // for (auto &obj : objects){
+        // Intersection inter = obj->intersect(r);
+    for (int i = 0; i < objects.size(); i++){
+        Intersection inter = objects[i]->intersect(r);
         if (inter.is_intersection){
             if(inter.distance < min_d){
                 min_d = inter.distance;
@@ -30,6 +32,7 @@ Intersection Scene::intersection(const Ray& r){
             }
         }
     }
+    // print(res.position);
     return res;
 }
 
@@ -62,18 +65,22 @@ Vector Scene::random_cos(const Vector &N){
 Vector Scene::getColor(const Ray& r, int ray_depth){ //,std::vector<double> index){
     if (ray_depth < 0) {        // terminate the recursion
         return Vector(0.,0.,0.);
-        }
+    }
     Intersection inter = this->intersection(r);
     Vector N = inter.normal;
     Vector P = inter.position + N*0.01;
-    Geometry* o = this->objects[inter.index];
+    Geometry* o = objects[inter.index];
+    // std::cout << o->index << std::endl;
+    // print(o->albedo);
+    // print(objects[inter.index]->albedo);
     Vector dir = r.direction;
 
     if (inter.is_intersection){
         // if(s.light){
         //     return Vector(1,1,1) * this->light.intensity / (4*PI*PI*pow(s.radius,2));
         // }
-        if (o->mirror){        
+        if (o->mirror){       
+            // std::cout << o->index << std::endl; 
             Ray reflect = Ray(P,dir - 2*dot(dir,N)*N);
             return getColor(reflect,ray_depth-1);
         }
@@ -145,19 +152,28 @@ Vector Scene::getColor(const Ray& r, int ray_depth){ //,std::vector<double> inde
             
             Vector albedo = o->albedo;
         
-            Vector omega = (C - P) / d;
+            Vector omega = (C - P) / d;         // vector from Intersection P to light origin C
             Ray r_light = Ray(C, -omega);
-            // Ray r_light = Ray(P,omega_i);
+            // Ray r_light = Ray(P,omega);
+            std::cout << intersection(r_light).distance << ", " << d << std::endl;
+            Vector temp = this->intersection(r_light).position;
+            // print(temp);
+            // print(P);
+            // std::cout << std::endl;
             int visibility = this->intersection(r_light).distance > d ? 1 : 0;
+            // int visibility = this->intersection(r_light).index == o->index ? 1 : 0;
             // int visibility = this->intersection(r_light).distance > (d-R) ? 1 : 0;
             // int visibility = this->spheres[this->intersection(r_light).index].light ? 1 : 0;
 
             // double pdf = dot(Nprime, D)/(PI*pow(R,2));
 
+            // std::cout << visibility << std::endl;
             Vector Lo = I / (4 * PI * pow(d, 2)) * albedo / PI * visibility * std::max(dot(N, omega), 0.);
             // Vector Lo = I / (4 * pow(PI,2) * pow(R, 2)) * albedo / PI * visibility * std::max(dot(N, omega_i), 0.) * std::max(dot(Nprime,-omega_i),0.)/(norm_square(xprime-P)*pdf);
             Ray random_ray = Ray(P,random_cos(N));
+            // print(Lo);
             Lo += albedo * getColor(random_ray,ray_depth-1);
+            // print(Lo);
             return Lo;
         }
     }

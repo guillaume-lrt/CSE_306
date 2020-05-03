@@ -27,8 +27,8 @@ int main(int argc, char **argv){
     Geometry* s_yellow = new Sphere(Vector(1000, 0, 0), 940, Vector(1, 1, 0));
 
     // Geometry* cat = new TriangleMesh();
-    TriangleMesh* cat = new TriangleMesh();
-    cat->readOBJ("cat_model/cat.obj");
+    // TriangleMesh* cat = new TriangleMesh("cat_model/cat.obj");
+    // cat->readOBJ("cat_model/cat.obj");
 
     Vector Q = Vector(0,0,55);          // center of camera
     double alpha = 60;                  // field of view
@@ -45,12 +45,12 @@ int main(int argc, char **argv){
 
     unsigned char image[W * H * 3];
 
-    #pragma omp parallel for schedule(static,1)
+    // #pragma omp parallel for schedule(static,1)
     for (int i = 0; i < H; i++){
         // #pragma omp parallel for
         for (int j = 0; j < W; j++){
             Vector color = Vector(0,0,0);
-            bool muller = true;         // if using muller box for antialiasing
+            bool muller = false;         // if using muller box for antialiasing
 
             // std::vector<double> index = {1};
             // color = scene.getColor(r, max_path_length);
@@ -62,10 +62,13 @@ int main(int argc, char **argv){
                 Ray r = Ray(Q, direction);
 
                 color = scene.getColor(r,max_path_length);
+                // print(color);
+                // std::cout << color[0] << ", " << color[1] << ", " << color[2] << std::endl;
                 ave_color = ave_color + color;
             }
             color = ave_color/K;
-            
+            // print(color);
+
             double power = 1. / 2.2;
             image[(i * W + j) * 3 + 0] = std::min(255., std::max(0., pow(color[0], power) * 255));
             image[(i * W + j) * 3 + 1] = std::min(255., std::max(0., pow(color[1], power) * 255));

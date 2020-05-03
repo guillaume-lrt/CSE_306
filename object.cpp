@@ -62,7 +62,7 @@ Intersection TriangleMesh::intersect(const Ray &r){
             Vector position = O + distance*u;
             if (abs(alpha) <= 1 && abs(beta) <= 1 && abs(gamma) <= 1 && distance < min_d){
                 min_d = distance;
-                res = Intersection(true, position, N, distance, index);
+                res = Intersection(true, position, normalization(N), distance, index);
                 // return Intersection(true,position,N,distance,index);
             }
         }
