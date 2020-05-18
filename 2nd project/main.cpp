@@ -21,14 +21,11 @@ int main(int argc, char **argv){
 
     std::vector<Vector> points = {Vector(0.1, 0.9, 0), Vector(0.5, 1, 0), Vector(0.7, 0.8, 0), Vector(0.6, 0.55, 0), Vector(0.9, 0.4, 0), Vector(0.8, 0.2, 0), Vector(0.3, 0.2, 0)};
     std::vector<Vector> points_2 = {Vector(0, 1, 0), Vector(1, 0.85, 0), Vector(0.7, 0, 0), Vector(0.2, 0.6, 0)};
+    std::vector<Vector> points_3 = random_points(200);
 
-    save_svg("test_points.svg",points,voronoi(points));
+    save_svg("test_points.svg",points_3,voronoi(points_3));
 
-    for (int i = 0; i < 10000; i++){
-        voronoi(points);
-    }
-
-    // std::vector<Polygon> vor = voronoi(points);
+   // std::vector<Polygon> vor = voronoi(points);
 
     // save_svg("Voronoi.svg",points,vor);
 

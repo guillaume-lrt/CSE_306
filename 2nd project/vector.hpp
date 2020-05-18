@@ -116,7 +116,14 @@ double distance_square(const Vector &a, const Vector &b){
 }
 
 std::vector<Vector> random_points(int n){
-    
+    double u,v;
+    std::vector<Vector> res;
+    for (int i = 0; i < n; i++){
+        u = uniform_scene(engine_scene);
+        v = uniform_scene(engine_scene);
+        res.push_back(Vector(u,v,0));
+    }
+    return res;
 }
 
 // #endif
