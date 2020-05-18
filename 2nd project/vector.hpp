@@ -41,6 +41,11 @@ bool operator==(const Vector &a, const Vector &b){
     return temp;
 }
 
+bool operator!=(const Vector &a, const Vector &b){
+    bool temp = ((a[0] != b[0]) || (a[1] != b[1]) || (a[2] != b[2])) ? true : false;
+    return temp;
+}
+
 Vector operator+(const Vector &a, const Vector &b){
     return Vector(a[0] + b[0], a[1] + b[1], a[2] + b[2]);
 }
@@ -95,6 +100,11 @@ Vector operator/(const Vector &a, const double t){
 
 Vector operator/(const double t, const Vector &a){
     return Vector(a[0] / t, a[1] / t, a[2] / t);
+}
+
+Vector perpen(const Vector &a){
+    // return the vector perpendicular to a
+    return Vector(a[1],-a[0],a[2]);
 }
 
 void print(Vector &a,Vector b = Vector(inf,inf,inf)){

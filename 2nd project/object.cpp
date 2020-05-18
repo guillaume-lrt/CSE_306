@@ -1,22 +1,36 @@
 #include "object.hpp"
 
 Vector intersect(Vector prevVertex, Vector curVertex, std::pair<Vector,Vector> clipEdge){
+    // Sutherland-Hodgman clipping algorythm
+    // return the intersection between two segments
     Vector u = clipEdge.first;
     Vector v = clipEdge.second;
     Vector N = Vector(v[1]-u[1],u[0]-v[0],0);       // normal to line (u,v)
     double t = dot(u-prevVertex,N)/dot(curVertex-prevVertex,N);
     if (t < 0 || t > 1){    // no intersection
-        std::cout << "t < 0 or t > 1\n";
-        // return Vector(inf,inf,inf);
+        // std::cout << "t < 0 or t > 1\n";
+        return Vector(inf,inf,inf);
     }
     return prevVertex + t*(curVertex-prevVertex);
 };
+
+Vector intersect_voronoi(Vector &A, Vector &B, Vector &P, Vector &Pj){
+    Vector M = (P + Pj)/2;
+    double t = dot(M-A,P-Pj)/dot(B-A,P-Pj);
+    return A + t*(B-A);
+}
 
 bool inside(Vector P, std::pair<Vector,Vector> clipEdge){
     Vector u = clipEdge.first;
     Vector v = clipEdge.second;
     Vector N = Vector(v[1] - u[1], u[0] - v[0],0);
     return dot(P-u,N) <= 0 ? true : false;
+}
+
+bool inside(Vector X, Vector P, Vector Pj){
+    // return true if X is inside the clipe edge
+    Vector M = (P+Pj)/2;
+    return dot(X-M,Pj-P)<0;
 }
 
 Polygon clip_poly(Polygon subjectPolygon, Polygon clipPolygon){
@@ -39,8 +53,65 @@ Polygon clip_poly(Polygon subjectPolygon, Polygon clipPolygon){
     return outPolygon;
 };
 
+std::vector<Polygon> voronoi(std::vector<Vector> points,Polygon space){
+    std::vector<Polygon> res;
+    Polygon outPolygon;
+    for(auto &curPoint: points){
+        outPolygon = space;
+        for(auto &tempPoint: points){
+            if (tempPoint != curPoint){
+                Vector M = (tempPoint + curPoint)/2;
+                size_t n = outPolygon.vertices.size();
+                Polygon tempPolygon = Polygon();
+                for(int i = 0; i < n; i++){
+                    Vector curVertex = outPolygon.vertices[i];
+                    Vector prevVertex = outPolygon.vertices[(i>0)?(i-1):n-1];
+                    Vector intersection = intersect_voronoi(prevVertex,curVertex,curPoint,tempPoint);
+                    if(inside(curVertex,curPoint,tempPoint)){
+                        if (!inside(prevVertex, curPoint,tempPoint))
+                            tempPolygon.vertices.push_back(intersection);
+                        tempPolygon.vertices.push_back(curVertex);
+                    }
+                    else if (inside(prevVertex, curPoint,tempPoint))
+                        tempPolygon.vertices.push_back(intersection);
+                }
+                outPolygon = tempPolygon;
+            }
+        }
+        res.push_back(outPolygon);
+    }
+    return res;
+}
+
 // saves a static svg file. The polygon vertices are supposed to be in the range [0..1], and a canvas of size 1000x1000 is created
-void save_svg(const std::vector<Polygon> &polygons, std::string filename, std::string fillcol){
+void save_svg(std::string filename, const std::vector<Polygon> &polygons, const std::vector<Vector> &vectors, std::string fillcol)
+{
+    FILE *f = fopen(filename.c_str(), "w+");
+    fprintf(f, "<svg xmlns = \"http://www.w3.org/2000/svg\" width = \"1000\" height = \"1000\">\n");
+    if (!polygons.empty()){
+        for (int i = 0; i < polygons.size(); i++){
+            fprintf(f, "<g>\n");
+            fprintf(f, "<polygon points = \"");
+            for (int j = 0; j < polygons[i].vertices.size(); j++){
+                fprintf(f, "%3.3f, %3.3f ", (polygons[i].vertices[j][0] * 1000), (1000 - polygons[i].vertices[j][1] * 1000));
+            }
+            fprintf(f, "\"\nfill = \"%s\" stroke = \"black\"/>\n", fillcol.c_str());
+            fprintf(f, "</g>\n");
+        }
+    }
+    if (!vectors.empty()){
+        for (auto &vect : vectors){
+            fprintf(f, "<g>\n");
+            fprintf(f, "<circle cx = \"%3.3f\" cy = \"%3.3f\" r=\"5\"/>", vect[0]*1000, 1000-vect[1]*1000);
+            fprintf(f, "</g>\n");
+        }
+    }
+    fprintf(f, "</svg>\n");
+    fclose(f);
+}
+
+void save_svg(std::string filename, const std::vector<Vector> &vectors, const std::vector<Polygon> &polygons, std::string fillcol)
+{
     FILE *f = fopen(filename.c_str(), "w+");
     fprintf(f, "<svg xmlns = \"http://www.w3.org/2000/svg\" width = \"1000\" height = \"1000\">\n");
     for (int i = 0; i < polygons.size(); i++){
@@ -50,6 +121,11 @@ void save_svg(const std::vector<Polygon> &polygons, std::string filename, std::s
             fprintf(f, "%3.3f, %3.3f ", (polygons[i].vertices[j][0] * 1000), (1000 - polygons[i].vertices[j][1] * 1000));
         }
         fprintf(f, "\"\nfill = \"%s\" stroke = \"black\"/>\n", fillcol.c_str());
+        fprintf(f, "</g>\n");
+    }
+    for (auto &vect : vectors){
+        fprintf(f, "<g>\n");
+        fprintf(f, "<circle cx = \"%3.3f\" cy = \"%3.3f\" r=\"5\"/>", vect[0] * 1000, 1000 - vect[1] * 1000);
         fprintf(f, "</g>\n");
     }
     fprintf(f, "</svg>\n");

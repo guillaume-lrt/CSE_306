@@ -19,10 +19,18 @@ class Polygon{
 
 Vector intersect(Vector prevVertex, Vector curVertex, std::pair<Vector, Vector> clipEddge);
 
+Vector intersect_voronoi(Vector &prevVertex, Vector &curVertex, Vector &curPoint, Vector &tempPoint);
+
 bool inside(Vector P, std::pair<Vector, Vector> clipEdge);
+
+bool inside(Vector X, Vector P, Vector Pj);
 
 Polygon clip_poly(Polygon subjectPolygon, Polygon clipPolygon);
 
-void save_svg(const std::vector<Polygon> &polygons, std::string filename, std::string fillcol = "none");
+std::vector<Polygon> voronoi(std::vector<Vector> points, Polygon space = Polygon({Vector(0,0,0),Vector(0,1,0),Vector(1,1,0),Vector(1,0,0)}));
+
+void save_svg(std::string filename, const std::vector<Polygon> &polygons = {}, const std::vector<Vector> &vectors = {}, std::string fillcol = "none");
+
+void save_svg(std::string filename, const std::vector<Vector> &vectors = {}, const std::vector<Polygon> &polygons = {}, std::string fillcol = "none");
 
 void save_svg_animated(const std::vector<Polygon> &polygons, std::string filename, int frameid, int nbframes);
