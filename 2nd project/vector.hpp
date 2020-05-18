@@ -50,13 +50,11 @@ Vector operator+(const Vector &a, const Vector &b){
     return Vector(a[0] + b[0], a[1] + b[1], a[2] + b[2]);
 }
 
-Vector operator-(const Vector &a, const Vector &b)
-{
+Vector operator-(const Vector &a, const Vector &b){
     return Vector(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 }
 
-Vector operator-(const Vector &b)
-{
+Vector operator-(const Vector &b){
     return Vector(- b[0], - b[1], - b[2]);
 }
 
@@ -111,6 +109,14 @@ void print(Vector &a,Vector b = Vector(inf,inf,inf)){
     std::cout << "[" << a[0] << ", " << a[1] << ", " << a[2] << "]" ;
     if (b[0] != inf) std::cout << ", [" << b[0] << ", " << b[1] << ", " << b[2] << "]" ;
     std::cout << std::endl;
+}
+
+double distance_square(const Vector &a, const Vector &b){
+    return pow(a[0] - b[0], 2) + pow(a[1] - b[1], 2) + pow(a[2] - b[2], 2);
+}
+
+std::vector<Vector> random_points(int n){
+    
 }
 
 // #endif

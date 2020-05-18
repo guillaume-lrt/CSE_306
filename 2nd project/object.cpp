@@ -1,5 +1,8 @@
 #include "object.hpp"
 
+#include <map>
+#include <algorithm>
+
 Vector intersect(Vector prevVertex, Vector curVertex, std::pair<Vector,Vector> clipEdge){
     // Sutherland-Hodgman clipping algorythm
     // return the intersection between two segments
@@ -33,6 +36,15 @@ bool inside(Vector X, Vector P, Vector Pj){
     return dot(X-M,Pj-P)<0;
 }
 
+double max_dist(Polygon polygon,Vector P){
+    // square distance betwee P and the furthest point of the current voronoi cell
+    double dist = 0;
+    for (auto &vert: polygon.vertices){
+        dist = std::max(dist, distance_square(vert, P));
+    }
+    return dist;
+}
+
 Polygon clip_poly(Polygon subjectPolygon, Polygon clipPolygon){
     // reduce the subject polygone by taking the intersection with clipPolygon
     Polygon outPolygon;     // return polygon
@@ -57,26 +69,32 @@ std::vector<Polygon> voronoi(std::vector<Vector> points,Polygon space){
     std::vector<Polygon> res;
     Polygon outPolygon;
     for(auto &curPoint: points){
-        outPolygon = space;
+        std::map<double,Vector> otherPoints;    // list of all other points sorted by their distance from curPoint
         for(auto &tempPoint: points){
             if (tempPoint != curPoint){
-                Vector M = (tempPoint + curPoint)/2;
-                size_t n = outPolygon.vertices.size();
-                Polygon tempPolygon = Polygon();
-                for(int i = 0; i < n; i++){
-                    Vector curVertex = outPolygon.vertices[i];
-                    Vector prevVertex = outPolygon.vertices[(i>0)?(i-1):n-1];
-                    Vector intersection = intersect_voronoi(prevVertex,curVertex,curPoint,tempPoint);
-                    if(inside(curVertex,curPoint,tempPoint)){
-                        if (!inside(prevVertex, curPoint,tempPoint))
-                            tempPolygon.vertices.push_back(intersection);
-                        tempPolygon.vertices.push_back(curVertex);
-                    }
-                    else if (inside(prevVertex, curPoint,tempPoint))
-                        tempPolygon.vertices.push_back(intersection);
-                }
-                outPolygon = tempPolygon;
+                otherPoints[distance_square(curPoint,tempPoint)] = tempPoint;
             }
+        }
+        outPolygon = space;
+        for(auto &it: otherPoints){
+            if (it.first > 2*max_dist(outPolygon,curPoint)) break;      // this point (and thus also those further away) don't affect the voronoi cell of curPoint
+            auto tempPoint = it.second;
+            Vector M = (tempPoint + curPoint)/2;
+            size_t n = outPolygon.vertices.size();
+            Polygon tempPolygon = Polygon();
+            for(int i = 0; i < n; i++){
+                Vector curVertex = outPolygon.vertices[i];
+                Vector prevVertex = outPolygon.vertices[(i>0)?(i-1):n-1];
+                Vector intersection = intersect_voronoi(prevVertex,curVertex,curPoint,tempPoint);
+                if(inside(curVertex,curPoint,tempPoint)){
+                    if (!inside(prevVertex, curPoint,tempPoint))
+                        tempPolygon.vertices.push_back(intersection);
+                    tempPolygon.vertices.push_back(curVertex);
+                }
+                else if (inside(prevVertex, curPoint,tempPoint))
+                    tempPolygon.vertices.push_back(intersection);
+            }
+            outPolygon = tempPolygon;
         }
         res.push_back(outPolygon);
     }
