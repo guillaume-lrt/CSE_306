@@ -27,7 +27,9 @@ bool inside(Vector X, Vector P, Vector Pj);
 
 Polygon clip_poly(Polygon subjectPolygon, Polygon clipPolygon);
 
-std::vector<Polygon> voronoi(std::vector<Vector> points, Polygon space = Polygon({Vector(0,0,0),Vector(0,1,0),Vector(1,1,0),Vector(1,0,0)}));
+std::vector<Polygon> voronoi(std::vector<Vector> points, std::vector<double> weight = {}, Polygon space = Polygon({Vector(0, 0, 0), Vector(0, 1, 0), Vector(1, 1, 0), Vector(1, 0, 0)}));
+
+std::vector<Vector> voronoi_tesselation(std::vector<Vector> points, int Iter);
 
 void save_svg(std::string filename, const std::vector<Polygon> &polygons = {}, const std::vector<Vector> &vectors = {}, std::string fillcol = "none");
 

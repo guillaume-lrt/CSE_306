@@ -9,6 +9,6 @@
 
 double inf = std::numeric_limits<double>::infinity();
 
-// static std::default_random_engine engine_scene;
+// static std::default_random_engine engine_scene;      // use this line to have pseudo random
 static std::default_random_engine engine_scene(time(0));
 static std::uniform_real_distribution<double> uniform_scene(0, 1);

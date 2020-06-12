@@ -17,9 +17,9 @@ Vector intersect(Vector prevVertex, Vector curVertex, std::pair<Vector,Vector> c
     return prevVertex + t*(curVertex-prevVertex);
 };
 
-Vector intersect_voronoi(Vector &A, Vector &B, Vector &P, Vector &Pj){
-    Vector M = (P + Pj)/2;
-    double t = dot(M-A,P-Pj)/dot(B-A,P-Pj);
+Vector intersect_voronoi(Vector &A, Vector &B, Vector &Pi, Vector &Pj){
+    Vector M = (Pi + Pj)/2;
+    double t = dot(M-A,Pi-Pj)/dot(B-A,Pi-Pj);
     return A + t*(B-A);
 }
 
@@ -30,10 +30,10 @@ bool inside(Vector P, std::pair<Vector,Vector> clipEdge){
     return dot(P-u,N) <= 0 ? true : false;
 }
 
-bool inside(Vector X, Vector P, Vector Pj){
+bool inside(Vector X, Vector Pi, Vector Pj){
     // return true if X is inside the clipe edge
-    Vector M = (P+Pj)/2;
-    return dot(X-M,Pj-P)<0;
+    Vector M = (Pi+Pj)/2;
+    return dot(X-M,Pj-Pi)<0;
 }
 
 double max_dist(Polygon polygon,Vector P){
@@ -65,7 +65,7 @@ Polygon clip_poly(Polygon subjectPolygon, Polygon clipPolygon){
     return outPolygon;
 };
 
-std::vector<Polygon> voronoi(std::vector<Vector> points,Polygon space){
+std::vector<Polygon> voronoi(std::vector<Vector> points, std::vector<double> weight, Polygon space){
     std::vector<Polygon> res;
     Polygon outPolygon;
     // #pragma omp parallel for schedule(static,1)
@@ -86,6 +86,7 @@ std::vector<Polygon> voronoi(std::vector<Vector> points,Polygon space){
             for(size_t i = 0; i < n; i++){
                 Vector curVertex = outPolygon.vertices[i];
                 Vector prevVertex = outPolygon.vertices[(i>0)?(i-1):n-1];
+                // Vector M = (curPoint + tempPoint)/2;
                 Vector intersection = intersect_voronoi(prevVertex,curVertex,curPoint,tempPoint);
                 if(inside(curVertex,curPoint,tempPoint)){
                     if (!inside(prevVertex, curPoint,tempPoint))
@@ -131,6 +132,34 @@ std::vector<Polygon> voronoi(std::vector<Vector> points,Polygon space){
 //     }
 //     return res;
 // }
+
+
+std::vector<Vector> voronoi_tesselation(std::vector<Vector> points, int iter = 20){
+    if (iter == 0) return points;
+    std::vector<Polygon> vor = voronoi(points);
+    std::vector<Vector> new_points;
+    for (auto &cell: vor){
+        int n = cell.vertices.size();
+        double A = 0;       // Area
+        Vector C = Vector();            // New centroid
+        for (size_t i = 0; i < n;i++){
+            Vector cur = cell.vertices[i];
+            auto next = cell.vertices[(i == n-1) ? 0 : (i+1)];
+            A += (cur[0]*next[1] - next[0]*cur[1]);
+        }
+        A /= 2;
+        for (size_t i = 0; i < n;i++){
+            auto cur = cell.vertices[i];
+            auto next = cell.vertices[(i == n-1) ? 0 : (i+1)];
+            C[0] += (cur[0]+next[0])*(cur[0]*next[1]-next[0]*cur[1]);
+            C[1] += (cur[1]+next[1])*(cur[0]*next[1]-next[0]*cur[1]);
+        }
+        C[0] /= 6*A;
+        C[1] /= 6*A;
+        new_points.push_back(C);
+    }
+    return voronoi_tesselation(new_points,iter-1);
+}
 
 // saves a static svg file. The polygon vertices are supposed to be in the range [0..1], and a canvas of size 1000x1000 is created
 void save_svg(std::string filename, const std::vector<Polygon> &polygons, const std::vector<Vector> &vectors, std::string fillcol)
