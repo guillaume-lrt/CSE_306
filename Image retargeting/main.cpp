@@ -36,7 +36,7 @@ class Image{
         if (x >= width || x < 0 || y >= height || y < 0){
             return 0;
         }
-        return (img[(y * this->width + x) * 3 + 0] + img[(y * this->width + x) * 3 + 1] + img[(y * this->width + x) * 3 + 2])/3;
+        return (img[(y * this->width + x) * 3 + 0] + img[(y * this->width + x) * 3 + 1] + img[(y * this->width + x) * 3 + 2])/125;
     }
 
     double energy(int x, int y){
@@ -57,6 +57,21 @@ class Image{
         this->cum_energy_map[pos] = res;
         return res;
     }
+
+    std::vector<double> build_cum_energy_map(){
+        for (int i = 0; i < height; i++)
+        {
+            for (int j = 0; j < width; j++)
+            {
+                double val = cumulated_energy(j,i);
+            }
+        }
+        return this->cum_energy_map;
+    }
+
+    // std::vector<int> seam(){
+
+    // }
 };
 
 int main(int argc, char **argv)
@@ -68,8 +83,9 @@ int main(int argc, char **argv)
     const int W = image.width;
     const int H = image.height;
 
-    unsigned char new_image[1280*960*3];
-    printf("%d",image.size);
+    // unsigned char new_image[1280*960*3];
+    unsigned char *new_image = new unsigned char[image.size];
+    printf("%d\n",image.size);
 
     for (int i = 0; i < H; i++)
     {
@@ -77,17 +93,16 @@ int main(int argc, char **argv)
         {   
             double val = image.energy(j,i);
             // double val = image.cumulated_energy(j,i);
-            std::cout << val << std::endl;
+            // double val = image.intensity(j,i);
             new_image[(i * W + j) * 3 + 0] = val;
             new_image[(i * W + j) * 3 + 1] = val;
             new_image[(i * W + j) * 3 + 2] = val;
         }
     }
-    // std::cout << new_image[0];
 
-    // stbi_write_jpg("new_image.jpg", W, H, 3, new_image, 0);
+    stbi_write_jpg("new_image.jpg", W, H, 3, new_image, 0);
 
-    // delete[] new_image;
+    delete[] new_image;
 
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
